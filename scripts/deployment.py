@@ -10,24 +10,26 @@ from brownie import (
 )
 
 from_account = {"from": get_account()}
-network_configuration = config["networks"][network.show_active()]
 
 
 def deploy_boxes():
     if len(StorageBox) == 0:
         StorageBox.deploy(
-            from_account, publish_source=network_configuration.get("verify")
+            from_account,
+            publish_source=config["networks"][network.show_active()].get("verify"),
         )
     if len(StorageBoxV2) == 0:
         StorageBoxV2.deploy(
-            from_account, publish_source=network_configuration.get("verify")
+            from_account,
+            publish_source=config["networks"][network.show_active()].get("verify"),
         )
 
 
 def deploy_proxy_admin():
     if len(ProxyAdmin) == 0:
         ProxyAdmin.deploy(
-            from_account, publish_source=network_configuration.get("verify")
+            from_account,
+            publish_source=config["networks"][network.show_active()].get("verify"),
         )
 
 
@@ -45,7 +47,7 @@ def deploy_proxy(contract, admin, data_initializer):
             admin.address,
             data_initializer,
             from_account,
-            publish_source=network_configuration.get("verify"),
+            publish_source=config["networks"][network.show_active()].get("verify"),
         )
 
 
@@ -68,10 +70,14 @@ def upgrade_contract(admin, proxy, implementation):
 def main():
     deploy_boxes()
     deploy_proxy_admin()
-    initializer = create_initializer(StorageBox[-1].store, 0x10)
+    initializer = create_initializer(StorageBox[-1].store, 5)
     deploy_proxy(StorageBox[-1], ProxyAdmin[-1], initializer)
     contract = deploy_storage_contract(StorageBox[-1])
     print(f"Stored value: {contract.retrieve()}")
+    try:
+        contract.increase()
+    except AttributeError as ex:
+        print("Current contract failed to increase value")
 
     upgrade_contract(ProxyAdmin[-1], TransparentUpgradeableProxy[-1], StorageBoxV2[-1])
 
