@@ -31,8 +31,11 @@ def deploy_proxy_admin():
         )
 
 
-def create_initializer():
-    return bytes()
+def create_initializer(initializer=None, *args):
+    if not initializer:
+        return bytes()
+    else:
+        return initializer.encode_input(*args)
 
 
 def deploy_proxy(contract, admin, data_initializer):
@@ -65,11 +68,9 @@ def upgrade_contract(admin, proxy, implementation):
 def main():
     deploy_boxes()
     deploy_proxy_admin()
-    initializer = create_initializer()
+    initializer = create_initializer(StorageBox[-1].store, 0x10)
     deploy_proxy(StorageBox[-1], ProxyAdmin[-1], initializer)
     contract = deploy_storage_contract(StorageBox[-1])
-
-    contract.store(5, from_account)
     print(f"Stored value: {contract.retrieve()}")
 
     upgrade_contract(ProxyAdmin[-1], TransparentUpgradeableProxy[-1], StorageBoxV2[-1])

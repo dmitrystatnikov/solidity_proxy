@@ -10,3 +10,9 @@ compiler:
   solc:
     remappings:
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.4.1'
+
+networks:
+  rinkeby:
+    verify: True
+  development:
+    verify: False
