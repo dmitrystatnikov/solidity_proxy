@@ -73,6 +73,7 @@ def main():
     initializer = create_initializer(StorageBox[-1].store, 5)
     deploy_proxy(StorageBox[-1], ProxyAdmin[-1], initializer)
     contract = deploy_storage_contract(StorageBox[-1])
+    print(f"Contract deployed address: {contract.address}")
     print(f"Stored value: {contract.retrieve()}")
     try:
         contract.increase()
@@ -82,5 +83,6 @@ def main():
     upgrade_contract(ProxyAdmin[-1], TransparentUpgradeableProxy[-1], StorageBoxV2[-1])
 
     contract = deploy_storage_contract(StorageBoxV2[-1])
+    print(f"Contract redeployed address: {contract.address}")
     contract.increase(from_account)
     print(f"Stored value: {contract.retrieve()}")
